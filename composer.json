@@ -1,0 +1,64 @@
+{
+    "name": "musement/monolog-fluentd-bundle",
+    "description": "Symfony2 bundle defining a fluentd handler for monolog",
+    "homepage": "https://github.com/musement-oss/monolog-fluentd-bundle",
+    "license": "MIT",
+    "type": "symfony-bundle",
+    "authors": [
+        {
+            "name": "Musement staff",
+            "email": "oss@musement.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Emiliano Gabrielli",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/musement-oss/monolog-fluentd-bundle/issues",
+        "source": "https://github.com/musement-oss/monolog-fluentd-bundle/releases/latest"
+    },
+    "minimum-stability": "stable",
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^5.5 || >=7.0 <7.2",
+        "symfony/monolog-bundle": "^2.12",
+        "fluent/logger": "^0.3"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "~2.2.0",
+        "sensiolabs/security-checker": "^4.0",
+        "symfony/var-dumper": "^2.0 || ^3.0",
+        "symfony/debug": "^2.0 || ^3.0",
+        "phpunit/phpunit": "^4.8.35 || ^5.4.3",
+        "symfony/phpunit-bridge": "^3.2.2"
+    },
+    "scripts": {
+        "check-cs": [
+            "php-cs-fixer -vvv fix --dry-run"
+        ],
+        "check-sec": [
+            "security-checker -vv security:check"
+        ],
+        "check": [
+            "@check-cs",
+            "@check-sec"
+        ],
+        "fix-cs": [
+            "php-cs-fixer -vvv fix"
+        ]
+    },
+    "autoload": {
+        "psr-4": {
+            "Musement\\MonologFluentdBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Musement\\MonologFluentdBundle\\Tests\\": "tests/"
+        }
+    }
+}
