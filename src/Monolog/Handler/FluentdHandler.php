@@ -26,28 +26,17 @@ class FluentdHandler extends AbstractProcessingHandler
     /**
      * Handler constructor.
      *
-     * @param string $host
-     * @param int    $port
-     * @param array  $options FluentLogger options
      * @param int    $level   The minimum logging level at which this handler will be triggered
      * @param bool   $bubble  Whether the messages that are handled can bubble up the stack or not
-     *
-     * @throws \InvalidArgumentException
+     * @param FluentLogger $logger An instance of FluentdLogger
      */
     public function __construct(
         $level = Logger::DEBUG,
         $bubble = true,
-        $host = FluentLogger::DEFAULT_ADDRESS,
-        $port = FluentLogger::DEFAULT_LISTEN_PORT,
-        $options = []
+        FluentLogger $logger = null
     ) {
         parent::__construct($level, $bubble);
-        $this->logger = $this->makeFluentLogger($host, $port, $options);
-
-        // By default FluentLogger would write to stderr for every message gone wrong.
-        // We find it a bad default (you would probably start to log myriad of data as error).
-        // You can reset the same or a different error handler by accessing the logger with getFluentLogger();
-        $this->logger->registerErrorHandler(function ($logger, $entity, $error) {});
+        $this->logger = $logger ? : new FluentLogger();
     }
 
     /**
@@ -66,20 +55,6 @@ class FluentdHandler extends AbstractProcessingHandler
     public function close()
     {
         $this->logger->close();
-    }
-
-    /**
-     * Create a new instance of FluentLogger.
-     *
-     * @param string $host
-     * @param int    $port
-     * @param array  $options FluentLogger options
-     *
-     * @return FluentLogger
-     */
-    protected function makeFluentLogger($host, $port, array $options = [])
-    {
-        return new FluentLogger($host, $port, $options);
     }
 
     /**
