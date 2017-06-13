@@ -11,32 +11,36 @@
 
 namespace Musement\MonologFluentdBundle\Monolog\Handler;
 
+use Fluent\Logger\Entity;
 use Fluent\Logger\FluentLogger;
-use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 
 class FluentdHandler extends AbstractProcessingHandler
 {
-    /**
-     * @var FluentLogger
-     */
+    /** @var FluentLogger */
     protected $logger;
+
+    /** @var string */
+    protected $tagFormat;
 
     /**
      * Handler constructor.
      *
-     * @param int    $level   The minimum logging level at which this handler will be triggered
-     * @param bool   $bubble  Whether the messages that are handled can bubble up the stack or not
-     * @param FluentLogger $logger An instance of FluentdLogger
+     * @param int          $level     The minimum logging level at which this handler will be triggered
+     * @param bool         $bubble    Whether the messages that are handled can bubble up the stack or not
+     * @param FluentLogger $logger    An instance of FluentdLogger
+     * @param string       $tagFormat
      */
     public function __construct(
         $level = Logger::DEBUG,
         $bubble = true,
-        FluentLogger $logger = null
+        FluentLogger $logger = null,
+        $tagFormat = null
     ) {
         parent::__construct($level, $bubble);
-        $this->logger = $logger ? : new FluentLogger();
+        $this->logger = $logger ?: new FluentLogger();
+        $this->tagFormat = $tagFormat ?: '{{channel}}.{{level_name}}';
     }
 
     /**
@@ -59,29 +63,44 @@ class FluentdHandler extends AbstractProcessingHandler
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \LogicException
      */
     protected function write(array $record)
     {
-        $this->logger->post($this->formatTag($record), $record['context']);
+        unset($record['formatted']);
+
+        $this->logger->post2(new Entity(
+            $this->buildTag($record),
+            $record,
+            $record['datetime']->getTimestamp()
+        ));
     }
 
     /**
-     * Format a fluentd tag using the record data.
-     *
      * @param array $record
      *
-     * @return string the tag
+     * @throws \LogicException
+     *
+     * @return string
      */
-    protected function formatTag(array $record)
+    protected function buildTag(array $record)
     {
-        return sprintf('%s.%s', $record['channel'], $record['message']);
-    }
+        $tag = $this->tagFormat;
+        if (!preg_match_all('/\{\{(.*?)\}\}/', $tag, $matches)) {
+            return $tag;
+        }
 
-    /**
-     * @return \Monolog\Formatter\FormatterInterface
-     */
-    protected function getDefaultFormatter()
-    {
-        return new JsonFormatter();
+        /** @var array[] $matches */
+        foreach ($matches[1] as $match) {
+            if (isset($record[$match])) {
+                $tag = str_replace("{{{$match}}}", $record[$match], $tag);
+                continue;
+            }
+
+            throw new \LogicException(sprintf('No such field "%s" in the record', $record[$match]));
+        }
+
+        return $tag;
     }
 }

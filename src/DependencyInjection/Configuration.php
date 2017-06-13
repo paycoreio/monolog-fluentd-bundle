@@ -42,6 +42,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('level')
                     ->defaultValue(Logger::DEBUG)
                 ->end()
+                ->scalarNode('tag_fmt')
+                    ->defaultValue(null)
+                ->end()
             ->end();
 
         return $treeBuilder;

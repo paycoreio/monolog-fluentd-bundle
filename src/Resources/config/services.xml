@@ -20,6 +20,7 @@
             <argument>%musement_monolog_fluentd.level%</argument>
             <argument>true</argument>
             <argument type="service" id="musement_monolog_fluentd.fluent_logger" />
+            <argument>%musement_monolog_fluentd.tag_fmt%</argument>
         </service>
     </services>
 

@@ -36,6 +36,7 @@ class MusementMonologFluentdExtension extends Extension
         $container->setParameter('musement_monolog_fluentd.port', $config['port']);
         $container->setParameter('musement_monolog_fluentd.options', $config['options']);
         $container->setParameter('musement_monolog_fluentd.level', $config['level']);
+        $container->setParameter('musement_monolog_fluentd.tag_fmt', $config['tag_fmt']);
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');

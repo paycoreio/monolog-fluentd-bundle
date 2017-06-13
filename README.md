@@ -37,6 +37,7 @@ These are the default parameters:
       port: 24224
       options: []
       level: debug
+      tag_fmt: '{{channel}}.{{level_name}}'
 
 You can modify them in config.yml or parameters.yml
 
