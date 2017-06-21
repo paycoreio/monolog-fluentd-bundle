@@ -15,9 +15,26 @@ use Fluent\Logger\Entity;
 use Fluent\Logger\FluentLogger;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
+use Psr\Log\InvalidArgumentException;
 
 class FluentdHandler extends AbstractProcessingHandler
 {
+    /**
+     * Maps Monolog log levels to PSR-3 (syslog) log values.
+     *
+     * @see https://tools.ietf.org/html/rfc5424
+     */
+    protected static $psr3Levels = [
+        Logger::DEBUG => LOG_DEBUG,
+        Logger::INFO => LOG_INFO,
+        Logger::NOTICE => LOG_NOTICE,
+        Logger::WARNING => LOG_WARNING,
+        Logger::ERROR => LOG_ERR,
+        Logger::CRITICAL => LOG_CRIT,
+        Logger::ALERT => LOG_ALERT,
+        Logger::EMERGENCY => LOG_EMERG,
+    ];
+
     /** @var FluentLogger */
     protected $logger;
 
@@ -62,6 +79,27 @@ class FluentdHandler extends AbstractProcessingHandler
     }
 
     /**
+     * Converts Monolog levels to PSR-3 (Syslog) numeric values.
+     *
+     * @param string|int Level number (monolog)
+     * @param mixed $level
+     *
+     * @return int Psr-3 level number
+     */
+    public static function toPsr3Level($level)
+    {
+        if (isset(static::$psr3Levels[$level])) {
+            return static::$psr3Levels[$level];
+        }
+
+        throw new InvalidArgumentException(sprintf(
+            'Level "%s" is not defined, use one among "%s".',
+            $level,
+            implode('", "', array_keys(static::$psr3Levels))
+        ));
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @throws \LogicException
@@ -69,6 +107,8 @@ class FluentdHandler extends AbstractProcessingHandler
     protected function write(array $record)
     {
         unset($record['formatted']);
+
+        $record['level'] = static::toPsr3Level($record['level']);
 
         $this->logger->post2(new Entity(
             $this->buildTag($record),

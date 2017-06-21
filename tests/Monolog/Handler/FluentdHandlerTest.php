@@ -20,39 +20,57 @@ class FluentdHandlerTest extends \PHPUnit_Framework_TestCase
 {
     public function testHandle()
     {
-        $message = 'Test message';
-        $context = ['x' => 1];
         $level = Logger::DEBUG;
-        $record = $this->getRecord($level, $message, $context);
+        $record = $this->getRecord($level, 'Test message', ['x' => 1]);
 
-        $spyLogger = $this
-            ->getMockBuilder(FluentLogger::class)
-            ->getMock();
-
-        $handler = new FluentdHandler($level, true, $spyLogger);
-
-        $spyLogger->expects($this->once())
+        $spyLogger = $this->createMock(FluentLogger::class);
+        $spyLogger
+            ->expects($this->once())
             ->method('post2')
-            ->with(new Entity(
-                'test.'.Logger::getLevelName($level),
-                $record,
-                $record['datetime']->getTimestamp()
-            ))
+            ->with(
+                $this->createTestEntity($record, $level)
+            )
+            ->willReturn(true)
         ;
 
+        $handler = new FluentdHandler($level, true, $spyLogger);
         $handler->handle($record);
     }
 
-    protected function getRecord($level = Logger::WARNING, $message = 'test', array $context = [])
+    /**
+     * @param int    $level
+     * @param string $message
+     * @param array  $context
+     *
+     * @return array
+     */
+    private function getRecord($level = Logger::WARNING, $message = 'test', array $context = [])
     {
         return [
             'channel' => 'test',
             'message' => $message,
             'level' => $level,
             'level_name' => Logger::getLevelName($level),
-            'datetime' => \DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true))),
+            'datetime' => \DateTimeImmutable::createFromFormat('U.u', sprintf('%.6F', microtime(true))),
             'context' => $context,
             'extra' => [],
         ];
+    }
+
+    /**
+     * @param $record
+     * @param $level
+     *
+     * @return Entity
+     */
+    private function createTestEntity($record, $level)
+    {
+        $record['level'] = FluentdHandler::toPsr3Level($level);
+
+        return new Entity(
+            'test.'.Logger::getLevelName($level),
+            $record,
+            $record['datetime']->getTimestamp()
+        );
     }
 }
