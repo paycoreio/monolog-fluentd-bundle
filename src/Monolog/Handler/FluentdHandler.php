@@ -170,7 +170,7 @@ class FluentdHandler extends AbstractProcessingHandler
                 continue;
             }
 
-            //FIXME throw new \LogicException(sprintf('No such field "%s" in the record', $record[$match]));
+            throw new \LogicException(sprintf('No such field "%s" in the record', $match));
         }
 
         return $tag;
