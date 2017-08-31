@@ -24,7 +24,7 @@
                 <argument>%musement_monolog_fluentd.tag_fmt%</argument>
             </call>
             <call method="setExceptions">
-            <argument>%musement_monolog_fluentd.enable_exceptions%</argument>
+                <argument>%musement_monolog_fluentd.enable_exceptions%</argument>
             </call>
         </service>
     </services>
