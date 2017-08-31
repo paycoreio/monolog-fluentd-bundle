@@ -18,6 +18,8 @@ This Symfony bundle enables logging to **fluentd** via monolog.
 
 Fluentd is an open source data collector, it decouples data sources from backend systems by providing a unified logging layer in between.
 
+**Branch 2.0 maintains PHP 5.5 compatibility**
+
 ## Install
 
     composer require musement/monolog-fluentd-bundle
