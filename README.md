@@ -44,6 +44,16 @@ Fluentd is an open source data collector, it decouples data sources from backend
         }
     }
 
+You can avoid loading the bundle (i.e. include it only in *staging*/*prod* environment) by means of something such as the following:
+
+    $bundles = array(
+       ...
+    );
+    if (in_array($this->getEnvironment(), array('production', 'staging'))) {
+        $bundles[] = new Musement\MonologFluentdBundle\MusementMonologFluentdBundle();
+    }
+
+
 ## Configuration
 
 These are the default parameters:
